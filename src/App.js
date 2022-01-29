@@ -10,10 +10,10 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path='ExampleRetriever' element={<ExampleRetriever />} />
+          <Route path='/ExampleRetriever' element={<ExampleRetriever />} />
         </Routes>
       </BrowserRouter>
-      {/* <ExampleRetriever />  */}
+      <ExampleRetriever /> 
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
