@@ -11,7 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/ExampleRetriever' element={<ExampleRetriever />} />
-          <Route path='/database'><ExampleRetriever /></Route>
+          {/* <Route path='/database'><ExampleRetriever /></Route> */}
         </Routes>
       </BrowserRouter>
       <ExampleRetriever /> 
