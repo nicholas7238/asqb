@@ -10,7 +10,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path='/ExampleRetriever' element={<ExampleRetriever />} />
+          <Route path='/asqb/ExampleRetriever' element={<ExampleRetriever />} />
           {/* <Route path='/database'><ExampleRetriever /></Route> */}
         </Routes>
       </BrowserRouter>
