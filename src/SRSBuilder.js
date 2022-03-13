@@ -293,7 +293,7 @@ export default function SRSBuilder() {
   }, [noSpanglish, shuffledSentences])
 
   return <div>
-      <div className='div-header'><h1>SRS Builder</h1></div>
+      <div className='div-header'><h1 style={{'backgroundColor': 'darkCyan'}}>SRS Builder</h1></div>
       <div className='div-vocab'>
         <div className='div-vocab-left'>
           <div className='div-vocab-left-header'>    

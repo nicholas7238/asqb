@@ -1,7 +1,7 @@
 import React, {useState, useRef, useEffect} from 'react'
 import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable } from './QuickbaseFetchFuntions';
-import './SRSBuilder.css'
+import './App.css'
 
 export default function Menu() {
     //const tables = useRef({ students: [] })

@@ -1,5 +1,5 @@
 import logo from './logo.svg';
-//import './App.css';
+import './App.css';
 import { BrowserRouter, HashRouter, Routes, Route } from 'react-router-dom';
 //import QuizInterface from './QuizInterface';
 import ExampleRetriever from './ExampleRetriever';
