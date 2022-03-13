@@ -236,6 +236,8 @@ export default function SRSBuilder() {
           try {
             const updateInfo = await createStudentExample(exID, stuID, lastReviewedDate, reviewInterval, ut)
             console.log('updateInfo: ', updateInfo)
+            setAllCheckboxes(false)
+            setSelectAll(false)
           } catch(err) {
             console.log(err)
           }
