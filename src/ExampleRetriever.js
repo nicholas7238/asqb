@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable } from './QuickbaseFetchFuntions';
+import './App.css';
 
 export default function ExampleRetriever() {
   const tables = useRef({ vocab: [], lessons: [] })
