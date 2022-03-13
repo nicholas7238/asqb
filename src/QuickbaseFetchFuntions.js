@@ -1,3 +1,5 @@
+import { qb } from './QuickbaseTablesInfo';
+
 function createHeaders(userToken) {
     const headers = {
         'QB-Realm-Hostname': 'masterofmemory.quickbase.com',
@@ -14,6 +16,8 @@ function createBody(tableID) {
         "select": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
     }
 }
+
+
     
 function printFields(json) { // go thru each row of fields & print  
     console.log('Fields', json.fields)
@@ -86,12 +90,112 @@ export async function fetchAndCreateTable(userToken, tableInitInfo) {
 
             //console.log('json: ', json)
 
-            //printFields(json) // don't delete
+            printFields(json) // don't delete
 
             const linkedFieldsToNumsArr = createFieldsJSON(tableInitInfo.fields, json.fields)
             const tableArr = createTable2(json.data, linkedFieldsToNumsArr)
             return tableArr
         }
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+function createBodyForUpdate(tableID) {}
+
+function createBodyForUpdateTest(tableID) {
+    return {
+        "to": tableID,
+        "data": [
+            {
+                "3": { "value": "3" },
+                "7": { "value": "5"}
+            }
+        ],
+        "fieldsToReturn": [3, 6, 7, 8, 9]
+    }
+}
+
+// 3: RecordID
+// 6: Last Review Date
+// 7: Review Interval
+function createBodyForUpdateStudentExample(recordID, lastReviewDate, reviewInterval, tableID) {
+    return {
+        "to": tableID,
+        "data": [
+            {
+                "3": { "value": recordID },
+                "6": { "value": lastReviewDate },
+                "7": { "value": reviewInterval }
+            }
+        ],
+        "fieldsToReturn": [3, 6, 7, 8, 9]
+    }
+}
+
+function createBodyForCreateStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, tableID) {
+    return {
+        "to": tableID,
+        "data": [
+            {
+                //"3": { "value": recordID },
+                "6": { "value": lastReviewDate },
+                "7": { "value": reviewInterval },
+                "8": { "value": studentID },
+                "9": { "value": exampleID }
+            }
+        ],
+        "fieldsToReturn": [3, 6, 7, 8, 9]
+    }
+}
+
+export async function testUpdate(userToken, tableInitInfo) {
+    try {
+        const res = await fetch('https://api.quickbase.com/v1/records',
+        {
+        method: 'POST',
+        headers: createHeaders(userToken),
+        body: JSON.stringify(createBodyForUpdateTest(tableInitInfo.id))
+        })
+        if(res.ok) {
+            return res.json().then(res => console.log(res))
+        }
+        return res.json().then(resBody => Promise.reject({status: res.status, ...resBody}))
+    } catch (err) {
+        console.log(err)
+    }
+}
+export async function updateStudentExample(recordID, lastReviewDate, reviewInterval, userToken) {
+    try {
+        const res = await fetch('https://api.quickbase.com/v1/records',
+        {
+        method: 'POST',
+        headers: createHeaders(userToken),
+        body: JSON.stringify(createBodyForUpdateStudentExample(recordID, lastReviewDate, reviewInterval, qb.studentExamples.id))
+        })
+        if(res.ok) {
+            //return res.json().then(res => console.log(res))
+            return res.json().then(res => Promise.resolve(res))
+        }
+        return res.json().then(resBody => Promise.reject({status: res.status, ...resBody}))
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+export async function createStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, userToken) {
+    try {
+        const res = await fetch('https://api.quickbase.com/v1/records',
+        {
+        method: 'POST',
+        headers: createHeaders(userToken),
+        body: JSON.stringify(createBodyForCreateStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, qb.studentExamples.id))
+        })
+        if(res.ok) {
+            //return res.json().then(res => console.log(res))
+            return res.json().then(res => Promise.resolve(res))
+        }
+        return res.json().then(resBody => Promise.reject({status: res.status, ...resBody}))
     } catch (err) {
         console.log(err)
     }

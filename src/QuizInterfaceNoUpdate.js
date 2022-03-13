@@ -8,7 +8,7 @@ import './QuizInterface.css';
 // last reviewed date 6
 // review interval 7
 
-export default function QuizInterface() {
+export default function QuizInterfaceNoUpdate() {
     const tables = useRef({ studentExamples: [], examples: [] })
 
     const [currentIndex, setCurrentIndex] = useState(-1)
@@ -28,7 +28,7 @@ export default function QuizInterface() {
             return todaysDate >= newDay
         })
         console.log('filteredByDateLogic', filteredByDateLogic)
-        //return filteredByStudentID // need to comment
+        return filteredByStudentID // need to comment
         return filteredByDateLogic
     }
 
@@ -172,8 +172,8 @@ export default function QuizInterface() {
         // console.log('current: ', filteredStudentExamples.current[currentIndex])
         try {
             //uncomment this
-            const updateInfo = await updateStudentExample(recordId, lastReviewedDate, reviewInterval, ut)
-            console.log('updateInfo: ', updateInfo)
+            //const updateInfo = await updateStudentExample(recordId, lastReviewedDate, reviewInterval, ut)
+            //console.log('updateInfo: ', updateInfo)
 
             if(reviewIntervalIncrements[currentIndex] === 0) {
                 setTotalCompletedExamples(totalCompletedExamples + 1)

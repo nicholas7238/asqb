@@ -10,6 +10,8 @@
   --fontDark: black
 }
 
+
+
 body {
   background-color: rgb(221, 209, 205);
   background-color: var(--overall);
@@ -111,7 +113,6 @@ h1 {
   color: black;
 
 }
-
 
 
 /**

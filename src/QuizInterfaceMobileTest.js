@@ -1,14 +1,21 @@
+import SwipeableViews from 'react-swipeable-views'
+import { useSwipeable } from 'react-swipeable';
 import React, {useState, useRef, useEffect, useCallback} from 'react'
 import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable, updateStudentExample } from './QuickbaseFetchFuntions';
 import './QuizInterface.css';
+
+import { virtualize, bindKeyboard } from 'react-swipeable-views-utils';
+import { mod } from 'react-swipeable-views-core';
+
+const VirtualizeSwipeableViews = bindKeyboard(virtualize(SwipeableViews));
 
 // related student 8
 // related example 9
 // last reviewed date 6
 // review interval 7
 
-export default function QuizInterface() {
+export default function QuizInterfaceMobileTest() {
     const tables = useRef({ studentExamples: [], examples: [] })
 
     const [currentIndex, setCurrentIndex] = useState(-1)
@@ -16,7 +23,64 @@ export default function QuizInterface() {
     const filteredStudentExamples = useRef([])
     const [reviewIntervalIncrements, setReviewIntervalIncrements] = useState([])
     const [showSpanish, setShowSpanish] = useState(false)
+    const [disablePrevButton, setEnablePrevButton] = useState(true)
+    const [disableNextButton, setEnableNextButton] = useState(true)
+    const [buttonsUpDownStyles, setButtonUpDownStyles] = useState({ upStyle: {}, downStyle: {} })
     const todaysDate = new Date()
+
+    const swipeHandlers = useSwipeable({
+        onSwipedUp: () => changeReviewIntervalIncrement(-1),
+        onSwipedDown: () => changeReviewIntervalIncrement(1),
+        delta: 20,
+        preventDefaultTouchmoveEvent: false,
+        trackTouch: false,
+        trackMouse: true
+    })
+
+
+    const styles = {
+        slide: {
+          padding: 15,
+          minHeight: 100,
+          color: '#fff',
+          borderColor: 'black',
+          borderStyle: 'solid'
+        }
+    }
+    function createSlideRenderer(index) {
+        return (
+            <div key={index}>
+            <div className='englishTranslation'>Ingles {index}</div>              
+
+            <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
+            Espanol {index}
+            </div>
+        </div>
+        )
+    }
+    // for swipeable-views
+    const slideRenderer = useCallback(({key, index}) => (
+        // <div key={key} style={styles.slide}>
+        //     {id}    
+        // </div>
+        // <div key={key}>
+        //     <div className='englishTranslation'>Ingles {index}</div>              
+
+        //     <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
+        //     Espanol {key}
+        //     </div>
+        // </div>
+
+        <div key={key}>
+            <div className='englishTranslation'>{index} {key} {index > -1?filteredStudentExamples.current[index].englishTranslation:'ingles'}</div>              
+
+            <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
+            { !showSpanish ? 'Show Spanish' : filteredStudentExamples.current ?
+            filteredStudentExamples.current[0].spanishExample : 'espanol'}
+            </div>
+        </div>
+    ), [filteredStudentExamples.current])
+
 
     function retrieveExamplesByStudent(studentID, studentExamples, examples) {
         const filteredByStudentID = studentExamples.filter(stuEx => stuEx.relatedStudent === studentID)
@@ -28,27 +92,10 @@ export default function QuizInterface() {
             return todaysDate >= newDay
         })
         console.log('filteredByDateLogic', filteredByDateLogic)
-        //return filteredByStudentID // need to comment
+        //return filteredByStudentID
         return filteredByDateLogic
     }
 
-    function randomize20(studentExamples) {
-        return shuffleArray(studentExamples).filter((stuEx, index)=>index<20)
-        //return studentExamples
-    }
-
-    function shuffleArray(arr) {        
-        const shuffledArr = [...arr]
-    
-        for(let i = shuffledArr.length; i > 0; i--) {
-            const newIndex = Math.floor(Math.random() * (i - 1))
-            const oldValue = shuffledArr[newIndex]
-            shuffledArr[newIndex] = shuffledArr[i - 1]
-            shuffledArr[i - 1] = oldValue
-        }
-    
-        return shuffledArr
-      }
 
 
 
@@ -56,14 +103,6 @@ export default function QuizInterface() {
     async function init() { // gets user token & creates the student examples table
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
-        let stuid = queryParams.get('stuid')
-        if(stuid === null) {
-            stuid = 2
-        } else {
-            stuid = parseInt(stuid)
-        }
-
-        console.log('stuid:  ', stuid)
         
         tables.current.studentExamples = await fetchAndCreateTable(ut, qb.studentExamples)
         console.log('student examples')
@@ -72,58 +111,40 @@ export default function QuizInterface() {
 
         console.log('tables: ', tables.current)
 
-        filteredStudentExamples.current = randomize20(retrieveExamplesByStudent(stuid, tables.current.studentExamples, tables.current.examples))
+        filteredStudentExamples.current = retrieveExamplesByStudent(2, tables.current.studentExamples, tables.current.examples)
         console.log('length of filStuEx: ', filteredStudentExamples.current.length)
-
+        // console.log('unsorted: ', filteredStudentExamples.current)
+        // filteredStudentExamples.current.sort((a, b) => a.relatedExample - b.relatedExample)
+        // console.log('sorted: ', filteredStudentExamples.current)
+        
+        // const test = tables.current.examples.filter(ex => filteredStudentExamples.current.map(elem => elem.relatedExample).includes(ex.recordId))
+        // //let newArr = []
         tables.current.examples.forEach(ex => 
             {
                 filteredStudentExamples.current.forEach(stuEx => {
                     if(stuEx.relatedExample === ex.recordId) {
+                        //console.log('ni')
                         stuEx.spanishExample = ex.spanishExample
                         stuEx.englishTranslation = ex.englishTranslation
+                        //newArr.push( { ...stuEx, spanishExample: ex.spanishExample, englishTranslation: ex.englishTranslation} )
                         stuEx.reviewIntervalIncrement = 0
                     }
                 })
             })
+        //console.log('test', test)
+        //console.log('filt:', newArr)
         console.log('check', filteredStudentExamples.current)
         if(filteredStudentExamples.current.length != 0) {
             setReviewIntervalIncrements(filteredStudentExamples.current.map(stuEx => stuEx.reviewIntervalIncrement))
             setCurrentIndex(0)
             //window.addEventListener('keyup', handleKeyUp)
         } else {
-            setCurrentIndex(-2)
+            setCurrentIndex(-1)
         }
       }
 
 
 
-    // arrow LEFT & RIGHT
-    function changeCurrentIndexOLD(index, isIncrement) {
-        if(index <= totalCompletedExamples || isIncrement) {
-            setCurrentIndex(prevState => {
-                let newIndex = index
-                if(totalCompletedExamples < filteredStudentExamples.current.length) {
-                    if(newIndex < 0) {
-                        newIndex = totalCompletedExamples // filteredStudentExamples.current.length - 1
-                    } else if(newIndex > totalCompletedExamples && isIncrement) { //} filteredStudentExamples.current.length - 1) {
-                        newIndex = 0
-                    }
-                } else {
-                    if(newIndex < 0) {
-                        newIndex = totalCompletedExamples - 1
-                    } else if(newIndex > totalCompletedExamples - 1) { //} filteredStudentExamples.current.length - 1) {
-                        newIndex = 0
-                    }
-                }
-                return newIndex
-            })
-            if(reviewIntervalIncrements[index] === 0) {
-                setShowSpanish(false)
-            } else {
-                setShowSpanish(true)
-            }
-        }
-    }
     function changeCurrentIndex2(index, isIncrement) {
         if(index <= totalCompletedExamples || isIncrement) {
             let newIndex = index
@@ -143,12 +164,6 @@ export default function QuizInterface() {
         
         console.log('old Inc: ', filteredStudentExamples.current[currentIndex].reviewIntervalIncrement)
         const newIncrement = increment
-        // let newIncrement = increment + filteredStudentExamples.current[currentIndex].reviewIntervalIncrement
-        // if(newIncrement > 1) {
-        //     newIncrement = 1
-        // } else if(newIncrement < -1) {
-        //     newIncrement = -1
-        // }
         console.log('new Inc: ', newIncrement)
         
         filteredStudentExamples.current[currentIndex].reviewIntervalIncrement = newIncrement // is this even used?
@@ -172,8 +187,8 @@ export default function QuizInterface() {
         // console.log('current: ', filteredStudentExamples.current[currentIndex])
         try {
             //uncomment this
-            const updateInfo = await updateStudentExample(recordId, lastReviewedDate, reviewInterval, ut)
-            console.log('updateInfo: ', updateInfo)
+            //const updateInfo = await updateStudentExample(recordId, lastReviewedDate, reviewInterval, ut)
+            //console.log('updateInfo: ', updateInfo)
 
             if(reviewIntervalIncrements[currentIndex] === 0) {
                 setTotalCompletedExamples(totalCompletedExamples + 1)
@@ -232,12 +247,42 @@ export default function QuizInterface() {
     return (
         <div className='quizInterface'>
             {   
-                currentIndex === -1 ? (<div>Loading...</div>) : currentIndex < -1 ? (<div>There are no new practice sentences today</div>) : 
+                currentIndex < 0 ? (<div>Loading...</div>) : 
             <>
+            <VirtualizeSwipeableViews {...swipeHandlers} enableMouseEvents
+            index={currentIndex}
+            onChangeIndex={(index)=>setCurrentIndex(index)}
+            slideRenderer={slideRenderer}
+            />
             <div className='progressBarContainer'>
-                {/* <div className='progressBar'>
-                    <div style={{width: (100 * (currentIndex+1) / filteredStudentExamples.current.length) + '%'}} className='progress'>.</div>
-                </div> */}
+                <div className='progressBar2'>
+                    {filteredStudentExamples.current.map((stuEx, index) => {
+                        const color = index === currentIndex ? 'white' : 'black'
+                        let bgColor = reviewIntervalIncrements[index] === -1 ? 'red' : (reviewIntervalIncrements[index] === 1 ? 'deepSkyBlue' : (index === totalCompletedExamples ? 'slateGrey' : 'grey'))
+                        //console.log('revIntIncs: ', reviewIntervalIncrements)
+                        
+                        return(<div key={index} style={{width: (100 / filteredStudentExamples.current.length) - 1 + '%', borderColor: color, color: color, backgroundColor: bgColor}} className='progressBox' onClick={()=>changeCurrentIndex2(index, false)}>{index + 1}</div>)
+                    })}
+                    
+                </div>
+                <div className='progressBarDescription'>{totalCompletedExamples} of {filteredStudentExamples.current.length} completed</div>
+            </div>
+            <SwipeableViews {...swipeHandlers} enableMouseEvents onChangeIndex={(index)=>setCurrentIndex(index)}>
+            {
+                filteredStudentExamples.current.filter((stuEx, id) => (id <= totalCompletedExamples)).map((stuEx, id) => {
+                    return(
+                    <div key={id}>
+                        <div className='englishTranslation'>{filteredStudentExamples.current[id].englishTranslation}</div>              
+
+                        <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
+                        { !showSpanish ? 'Show Spanish' : 
+                        filteredStudentExamples.current[id].spanishExample}
+                        </div>
+                    </div>)
+                })
+            }
+            </SwipeableViews>
+            <div className='progressBarContainer'>
                 <div className='progressBar2'>
                     {filteredStudentExamples.current.map((stuEx, index) => {
                         const color = index === currentIndex ? 'white' : 'black'
@@ -251,14 +296,15 @@ export default function QuizInterface() {
                 <div className='progressBarDescription'>{totalCompletedExamples} of {filteredStudentExamples.current.length} completed</div>
             </div>
             
-            <div className='englishTranslation'>{filteredStudentExamples.current[currentIndex].englishTranslation}</div>
             
+            <div>
+                <div className='englishTranslation'>{filteredStudentExamples.current[currentIndex].englishTranslation}</div>              
 
-            <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
-            { !showSpanish ? 'Show Spanish' : 
-            filteredStudentExamples.current[currentIndex].spanishExample}
+                <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
+                { !showSpanish ? 'Show Spanish' : 
+                filteredStudentExamples.current[currentIndex].spanishExample}
+                </div>
             </div>
-            
             <div className='buttonsContainer'>
                 <div><button className='buttonReviewMore' onClick={()=>changeReviewIntervalIncrement(-1)}>Review More ^</button></div>
                 <div>
