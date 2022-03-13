@@ -18,7 +18,7 @@ export default function SRSBuilder() {
   const filteredExamples = useRef([])
   const [displayExamples, setDisplayExamples] = useState([])
   //const [filteredExamples, setFilteredExamples] = useState([])
-  const [currentStudent, setCurrentStudent] = useState(2)
+  const [currentStudent, setCurrentStudent] = useState(3)
   const [selectAll, setSelectAll] = useState(false)
 
   //////// currently not in use
