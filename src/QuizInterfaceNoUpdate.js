@@ -1,7 +1,7 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react'
 import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable, updateStudentExample } from './QuickbaseFetchFuntions';
-import './QuizInterfaceNoUpdate.css';
+import './QuizInterface.css';
 
 // related student 8
 // related example 9
@@ -230,7 +230,7 @@ export default function QuizInterfaceNoUpdate() {
     }, [currentIndex, reviewIntervalIncrements])
 
     return (
-        <div className='quizInterface'>
+        <div className='quizInterface' style={{'backgroundColor': '#033'}}>
             {   
                 currentIndex === -1 ? (<div>Loading...</div>) : currentIndex < -1 ? (<div>There are no new practice sentences today</div>) : 
             <>
