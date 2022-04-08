@@ -10,6 +10,7 @@ import TestVirtualize from './TestVirtualize';
 import SRSBuilder from './SRSBuilder';
 import Menu from './Menu';
 import QuizInterfaceNoUpdate from './QuizInterfaceNoUpdate';
+import TestHowler from './TestHowler';
 //import TestUpdateQB from './TestUpdateQB';
 //import TestCode from './TestCode';
 
@@ -28,6 +29,8 @@ function App() {
           <Route exact path='/QuizInterface' element={<QuizInterface />} />
           <Route exact path='/QuizInterfaceNoUpdate' element={<QuizInterfaceNoUpdate />} />
           <Route exact path='/Menu' element={<Menu /> } />
+          <Route exact path='/TestHowler' element={<TestHowler /> } />
+
           {/* 
           <Route path='/ExampleRetriever'><ExampleRetriever /></Route>
           <Route path='/asqb/ExampleRetriever' exact component={ExampleRetriever} />

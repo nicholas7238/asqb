@@ -117,13 +117,13 @@ html, body {
 }
 
 .buttonReviewLess {
-    background-color: cornflowerblue;
-    border-color: cornflowerblue;
+    background-color: lightgreen;
+    border-color: lightgreen;
     color: light
 }
 
 .buttonReviewLess:hover {
-    background-color: deepskyblue;
+    background-color: greenyellow;
 }
 
 .buttonsContainer button {

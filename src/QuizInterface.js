@@ -124,7 +124,7 @@ export default function QuizInterface() {
             }
         }
     }
-    function changeCurrentIndex2(index, isIncrement) {
+    function changeCurrentIndex2(index, isIncrement) { // OLD Version not in use anymore
         if(index <= totalCompletedExamples || isIncrement) {
             let newIndex = index
             const highestIndex = totalCompletedExamples < filteredStudentExamples.current.length ? totalCompletedExamples : totalCompletedExamples - 1
@@ -136,6 +136,30 @@ export default function QuizInterface() {
             setCurrentIndex(newIndex)
             setShowSpanish(reviewIntervalIncrements[newIndex] !== 0)
         }
+    }
+    function changeCurrentIndex3(index, isIncrement) {
+        let newIndex = index
+        if(totalCompletedExamples == filteredStudentExamples.current.length) {
+            if(newIndex < 0) {
+                newIndex = filteredStudentExamples.current.length - 1
+            } else if(newIndex > filteredStudentExamples.current.length - 1) {
+                newIndex = 0
+            }
+            setCurrentIndex(newIndex)
+            setShowSpanish(reviewIntervalIncrements[newIndex] !== 0)
+        } else if(index <= totalCompletedExamples && index >= 0) {
+            setCurrentIndex(newIndex)
+            setShowSpanish(reviewIntervalIncrements[newIndex] !== 0)
+        }
+    }
+
+    function goBackToMenu(e) { // actually should be named go back to main menu
+        // console.log('close tab')
+        // window.opener = null
+        // window.open("", "_self")
+        // window.close()
+        e.preventDefault()
+        window.location.href='https://nicholas7238.github.io/asqb/?ut=QB-USER-TOKEN%20b6ixna_nyes_0_c4tsfdhvnks5rbsirnc5smf3q4#/Menu'
     }
 
     // arrow UP & DOWN
@@ -184,6 +208,7 @@ export default function QuizInterface() {
                 newState[currentIndex] = newIncrement
                 return newState
             })
+            setShowSpanish(true)
         } catch(err) {
             console.log(err)
         }
@@ -198,16 +223,18 @@ export default function QuizInterface() {
         e.preventDefault()
         switch(e.keyCode) {
             case 37: // left
-                changeCurrentIndex2(currentIndex-1, true)
+                changeCurrentIndex3(currentIndex-1, true)
                 break
             case 38: // up
                 changeReviewIntervalIncrement(-1)
+                //setShowSpanish(true)
                 break
             case 39: // right
-                changeCurrentIndex2(currentIndex+1, true)
+                changeCurrentIndex3(currentIndex+1, true)
                 break
             case 40: // down
                 changeReviewIntervalIncrement(1)
+                //setShowSpanish(true)
                 break
             case 32: // space
                 toggleShowSpanish()
@@ -241,7 +268,7 @@ export default function QuizInterface() {
                 <div className='progressBar2'>
                     {filteredStudentExamples.current.map((stuEx, index) => {
                         const color = index === currentIndex ? 'white' : 'black'
-                        let bgColor = reviewIntervalIncrements[index] === -1 ? 'red' : (reviewIntervalIncrements[index] === 1 ? 'deepSkyBlue' : (index === totalCompletedExamples ? 'slateGrey' : 'grey'))
+                        let bgColor = reviewIntervalIncrements[index] === -1 ? 'crimson' : (reviewIntervalIncrements[index] === 1 ? 'lime' : (index === totalCompletedExamples ? 'slateGrey' : 'grey'))
                         //console.log('revIntIncs: ', reviewIntervalIncrements)
                         
                         return(<div key={index} style={{width: (100 / filteredStudentExamples.current.length) - 1 + '%', borderColor: color, color: color, backgroundColor: bgColor}} className='progressBox' onClick={()=>changeCurrentIndex2(index, false)}>{index + 1}</div>)
@@ -249,6 +276,7 @@ export default function QuizInterface() {
                     
                 </div>
                 <div className='progressBarDescription'>{totalCompletedExamples} of {filteredStudentExamples.current.length} completed</div>
+                { totalCompletedExamples == filteredStudentExamples.current.length ? (<button style={{ fontSize: 'large', padding: '10px' }} onClick={(e) => goBackToMenu(e)}>Return to Main Menu</button>) : (<div></div>) }
             </div>
             
             <div className='englishTranslation'>{filteredStudentExamples.current[currentIndex].englishTranslation}</div>
@@ -262,10 +290,10 @@ export default function QuizInterface() {
             <div className='buttonsContainer'>
                 <div><button className='buttonReviewMore' onClick={()=>changeReviewIntervalIncrement(-1)}>Review More ^</button></div>
                 <div>
-                    <button onClick={()=>changeCurrentIndex2(currentIndex-1, true)}>{'<-- Prev'}</button>
+                    <button onClick={()=>changeCurrentIndex3(currentIndex-1, true)}>{'<-- Prev'}</button>
                     {/* <button onClick={()=>handleReviewButton(-1)}>Review More ^</button> */}
                     <button className='buttonReviewLess' onClick={()=>changeReviewIntervalIncrement(1)}>Review Less v</button>
-                    <button onClick={()=>changeCurrentIndex2(currentIndex+1, true)}>{'Next -->'}</button>
+                    <button onClick={()=>changeCurrentIndex3(currentIndex+1, true)}>{'Next -->'}</button>
                 </div>
             </div>
             </>
