@@ -160,7 +160,11 @@ export default function QuizInterfaceNoUpdate() {
         // window.open("", "_self")
         // window.close()
         e.preventDefault()
-        window.location.href='https://nicholas7238.github.io/asqb/?ut=QB-USER-TOKEN%20b6ixna_nyes_0_c4tsfdhvnks5rbsirnc5smf3q4#/Menu'
+        const queryParams = new URLSearchParams(window.location.search)
+        const ut = queryParams.get('ut')
+        const link = 'https://nicholas7238.github.io/asqb/?ut=' + ut + '#/Menu'
+        
+        window.location.href=link
     }
 
     // arrow UP & DOWN
@@ -259,6 +263,9 @@ export default function QuizInterfaceNoUpdate() {
 
     return (
         <div className='quizInterface' style={{'backgroundColor': '#033'}}>
+            
+            <div style={{ textAlign: 'left' }} className='returnButton'><button style={{ fontSize: 'large', padding: '10px'}} onClick={(e) => goBackToMenu(e)}>Return to Main Menu</button></div>
+            
             {   
                 currentIndex === -1 ? (<div>Loading...</div>) : currentIndex < -1 ? (<div>There are no new practice sentences today</div>) : 
             <>
@@ -277,7 +284,7 @@ export default function QuizInterfaceNoUpdate() {
                     
                 </div>
                 <div className='progressBarDescription'>{totalCompletedExamples} of {filteredStudentExamples.current.length} completed</div>
-                { totalCompletedExamples == filteredStudentExamples.current.length ? (<button style={{ fontSize: 'large', padding: '10px' }} onClick={(e) => goBackToMenu(e)}>Return to Main Menu</button>) : (<div></div>) }
+                {/* totalCompletedExamples == filteredStudentExamples.current.length ? (<button style={{ fontSize: 'large', padding: '10px' }} onClick={(e) => goBackToMenu(e)}>Return to Main Menu</button>) : (<div></div>) */}
             </div>
             
             <div className='englishTranslation'>{filteredStudentExamples.current[currentIndex].englishTranslation}</div>

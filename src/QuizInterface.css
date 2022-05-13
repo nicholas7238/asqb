@@ -19,9 +19,9 @@ html, body {
 
 .quizInterface {
     text-align: center;
-    padding: 5vh 5vw;
+    padding: 1vh 5vw;
     font-size: xx-large;
-    height: 90vh;
+    height: 98vh;
     width: 90vw;
     background-color: darkcyan;
     background-color: rgb(80, 80, 240);
