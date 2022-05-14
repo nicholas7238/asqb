@@ -4,36 +4,48 @@ import { fetchAndCreateTable } from './QuickbaseFetchFuntions';
 import './App.css';
 
 export default function ExampleRetriever() {
-  // stores data of tables
   const tables = useRef({ vocab: [], lessons: [] })
-  // vocab related variables
-  // array of suggested vocab that shows up under search bar & changes whenever a user types something in the search bar
+  // vocab
+  //const [search, setSearch] = useState('')
+  //const filteredVocab = tables.current.vocab.filter(vocab => vocab.vocabName.toLowerCase().includes(search.toLowerCase()))
   const [filteredVocab, setFilteredVocab] = useState([])
-  // array of vocab that user builds, which is then used to filter example sentences
+  //const [lessonTitleSelect, setLessonTitleSelect] = useState({options: [''], selected: 0})
+  //const [lessonNumSelect, setLessonNumSelect] = useState({})
   const [customSearchVocab, setCustomSearchVocab] = useState([])
-
-  // examples related variables
+  // examples
   const [noSpanglish, setNoSpanglish] = useState(false)
   const [shuffledSentences, setShuffledSentences] = useState(false)
-  // array of examples, stores the first part of the filtering
   const filteredExamples = useRef([])
-  // array of examples that are displayed, does the 2nd part of the filtering
-  // it is split into 2 separate variables in order to avoid redundancy
   const [displayExamples, setDisplayExamples] = useState([])
+  //const [filteredExamples, setFilteredExamples] = useState([])
 
-  function handleRetrieveSentencesOnClick(e) {
-    e.preventDefault() // prevents page from refreshing
-    const selectedLesson = e.target.firstChild.value // gets selected value in dropdown list of lessons
-    // if selected lesson is '' display all examples,
-    // else 
-    const filter1 = selectedLesson === '' ? tables.current.examples : filterExamplesStrict(retrieveCombinedLessonVocab(selectedLesson, tables.current.lessons), tables.current.examples)
-    const filter2 = filterExamplesLenient(customSearchVocab, filter1)
-    filteredExamples.current = filter2
-    filterExamplesHelper()
+  //////// currently not in use
+  function createLessonsSelectOptions(lessons) {
+    let arr = []
+    //LESSONS.forEach(lesson => arr.push(lesson.name))
+    lessons.forEach(lesson => {
+      for(let i = 1; i <= lesson.length; i++) {
+        arr.push(lesson.name + ' ' + i)
+      }
+    })
+    console.log('createLessonsSelectOpt: ', arr)
+    return arr
   }
+  function createLessonTitle(option) {
+    const lesson = tables.current.lessons.find(element => element.lesson === option)
+    const title = lesson ? lesson.vocabIncluded.join('\n') : ''
+    return title
+  }
+  // unused function
+  function handleSelect1OnChange(e) {
+    e.preventDefault()
+    // console.log('selected value: ', e.target.value)
+    // //setLessonTitleSelect({options: [...setLessonTitleSelect.options], selected: e.target.value})
+    // setLessonTitleSelect({...lessonTitleSelect, selected: e.target.value})
+    // console.log(lessonTitleSelect)
+  }
+////////////
 
-  // returns an array of all lessons with same title and lower/equal lesson number
-  // for example: AS Lesson 3 will return ['AS Lesson 1', 'AS Lesson 2', 'AS Lesson 3']
   function retrieveCombinedLessonVocab(selectedLessonName, lessonsTable) {
     const selectedSplitArr = selectedLessonName.split(' ')
     const selectedNum = parseInt(selectedSplitArr.pop())
@@ -50,8 +62,35 @@ export default function ExampleRetriever() {
     return combinedLessonVocab
   }
 
-  // returns filtered array of examples with a strict filter
-  // meaning each example MUST include all vocab in vocabArr
+  function handleRetrieveSentencesOnClick(e) {
+    e.preventDefault()
+    //console.log('handle: ', e.target.firstChild.value)
+    
+    //console.log('retrive sent')
+    //lessonTitleSelect.selected === '' ? tables.current.examples :
+    const selectedLesson = e.target.firstChild.value
+    const filter1 = selectedLesson === '' ? tables.current.examples : filterExamplesStrict(retrieveCombinedLessonVocab(selectedLesson, tables.current.lessons), tables.current.examples)
+    //console.log('filter1: ', filter1)
+    const filter2 = filterExamplesLenient(customSearchVocab, filter1)
+    //console.log('filter2: ', filter2)
+    filteredExamples.current = filter2
+    //const strictExamples = filterExamplesStrict(retrieveCombinedLessonVocab('SI1M Lesson 8', table), exTable)
+    //const lenientExamples = filterExamplesLenient(['por', 'de'], exTable)
+    // const filter3 = noSpanglish ? filter2.filter(example => example.spanglish === 'esp') : filter2
+    // const filter4 = shuffledSentences ? shuffleArray(filter3) : filter3
+    // setDisplayExamples(filter4)
+    //setFilteredExamples(filter2)
+    filterExamplesHelper()
+  }
+
+  // checks if noSpanglish & shuffleSentences and then sets the displayExamples
+  function filterExamplesHelper() {
+    const filter2 = filteredExamples.current
+    const filter3 = noSpanglish ? filter2.filter(example => example.spanglish === 'esp') : filter2
+    const filter4 = shuffledSentences ? shuffleArray(filter3) : filter3
+    setDisplayExamples(filter4)
+  }
+
   function filterExamplesStrict(vocabArr, examplesTable) {
     const filteredExamples = examplesTable.filter(example => {
         if(example.vocabIncluded.length == 0) {
@@ -67,8 +106,6 @@ export default function ExampleRetriever() {
     return filteredExamples
   }
 
-  // returns filtered array of examples with a lenient filter
-  // meaning as long as the example contains at least one of the vocab in vocabArr
   function filterExamplesLenient(vocabArr, examplesTable) {
       const filteredExamples = vocabArr.length === 0 ? examplesTable : examplesTable.filter(example => {
           for(const parameterVocab of vocabArr) {
@@ -83,27 +120,19 @@ export default function ExampleRetriever() {
       return filteredExamples
   }
 
-  // checks if noSpanglish & shuffleSentences and then sets the displayExamples
-  function filterExamplesHelper() {
-    const filter2 = filteredExamples.current
-    const filter3 = noSpanglish ? filter2.filter(example => example.spanglish === 'esp') : filter2
-    const filter4 = shuffledSentences ? shuffleArray(filter3) : filter3
-    setDisplayExamples(filter4)
-  }
-
-  // returns a shuffled array  
-  function shuffleArray(arr) {       
+  function shuffleArray(arr) {        
     const shuffledArr = [...arr]
+
     for(let i = shuffledArr.length; i > 0; i--) {
         const newIndex = Math.floor(Math.random() * (i - 1))
         const oldValue = shuffledArr[newIndex]
         shuffledArr[newIndex] = shuffledArr[i - 1]
         shuffledArr[i - 1] = oldValue
     }
+
     return shuffledArr
   }
 
-  // copies sentences in a list format with all english sentences first & then all spanish sentences
   function copySentences() {
     const englishSentences = displayExamples.map(example => {
         return example.englishTranslation
@@ -113,10 +142,11 @@ export default function ExampleRetriever() {
     }).join('\n')
     //
     const copiedText = englishSentences + '\n\n' + spanishSentences
+
+    //console.log(englishSentences)
     navigator.clipboard.writeText(copiedText)
   }
 
-  // copies sentences in a table format to be pasted into a google doc or excel sheet
   function copyTable() {
     const headers = 'Spanish\tEnglish\n'
     const table = displayExamples.map(example => {
@@ -127,19 +157,15 @@ export default function ExampleRetriever() {
     navigator.clipboard.writeText(copiedText)
   }
 
-  // gets user token & retrieves all table data & stores it into tables variable
-  async function init() {
-    // getting the user token
+  async function init() { // gets user token & creates the student examples table
     const queryParams = new URLSearchParams(window.location.search)
-    const ut = queryParams.get('ut') // user token
+    const ut = queryParams.get('ut')
     
-    // retrieving the table data
     tables.current.vocab = await fetchAndCreateTable(ut, qb.vocabulary)
     console.log('vocab')
     tables.current.examples = await fetchAndCreateTable(ut, qb.examples)
     console.log('example')
     tables.current.lessons = await fetchAndCreateTable(ut, qb.lessons)
-    // this logic below sorts the lesssons in order by number
     tables.current.lessons.sort((a, b)=>{
       const splitArrA = a.lesson.split(' ')
       const numA = parseInt(splitArrA.pop())
@@ -152,16 +178,23 @@ export default function ExampleRetriever() {
       return titleA === titleB ? numA - numB : titleA - titleB
     })
     console.log('lessons')
+    //console.log('lessons: ', tables.current.lessons)
     setFilteredVocab(tables.current.vocab)
+
+    //const lessons = [{name:'SI1M Lesson', length: 20}, {name:'AS Lesson', length: 12}]
+
+    //setLessonTitleSelect(createLessonsSelectOptions(lessons))
+
+    //const lessonsSelectOptions = createLessonsSelectOptions()
+
+    //console.log(tables)
   }
 
-  // called onced at the beginning
   useEffect(() => {       
     init() 
     //console.log(tables)       
 }, [tables])
 
-  // called everytime user clicks the checkbox for noSpanish or shuffleSentences
   useEffect(() => {
     if(tables.current.lessons.length !== 0) {
     filterExamplesHelper()

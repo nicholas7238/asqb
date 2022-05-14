@@ -11,8 +11,6 @@ export default function Menu() {
     function handleOnClick(pageName) {
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
-        //window.location.href='http://localhost:3000/'
-        //const linkStr = 'http://localhost:3000/' + '?ut=' + ut + '#/' + pageName
         //const linkBase = 'http://localhost:3000/'
         const linkBase = 'https://nicholas7238.github.io/'
         const gitProjectName = pageName === 'ExampleRetrieverOld' ? 'as-quickbase4/' : 'asqb/'
@@ -25,15 +23,13 @@ export default function Menu() {
         )
     }
 
-    async function init() { // gets user token & creates the student examples table
+    // gets user token & tables data
+    async function init() {
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
-    
-        //tables.current.students = await fetchAndCreateTable(ut, qb.students)
         const stuTable =  await fetchAndCreateTable(ut, qb.students)
         setStudentsTable(stuTable)
         console.log('students')
-        //console.log(tables)
       }
     useEffect(() => {       
         init() 

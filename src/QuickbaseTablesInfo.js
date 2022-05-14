@@ -1,4 +1,5 @@
 export const qb = { // quickbaseTablesInfo
+    // This is where all the table names used to make queries are stored
     studentExamples: {
         name: 'student-examples',
         id: 'br3juud42',

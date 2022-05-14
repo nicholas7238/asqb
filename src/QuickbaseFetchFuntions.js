@@ -1,5 +1,6 @@
 import { qb } from './QuickbaseTablesInfo';
 
+// creates headers needed for querying data from quickbase
 function createHeaders(userToken) {
     const headers = {
         'QB-Realm-Hostname': 'masterofmemory.quickbase.com',
@@ -10,6 +11,7 @@ function createHeaders(userToken) {
     return headers
 }
 
+// creates body needed for querying data from quickbase
 function createBody(tableID) {
     return {
         "from": tableID,
@@ -17,19 +19,16 @@ function createBody(tableID) {
     }
 }
 
-
-    
-function printFields(json) { // go thru each row of fields & print  
+// go thru each row of fields & print (mainly used for testing)  
+function printFields(json) { 
     console.log('Fields', json.fields)
 }
 
+// camelizes string and also removes special characters like #
+// for ex: converts 'Record ID#' to 'recordId', 'word/idiom' to 'wordIdiom', 'spanglish?' to 'spanglish'
 function camelize(str) {
-    //console.log('camel')
-    //const strArr = str.replaceAll(/-/g, ' ')
     const strArr = str.replaceAll(/[^\w\s]/gi, ' ')
-    //console.log(strArr)
     const strArr2 = strArr.split(' ')
-    //console.log(strArr2)
     const camelArr = strArr2.map((word, index) => index === 0 ? word.toLowerCase(): word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     return camelArr.join('')
 }
