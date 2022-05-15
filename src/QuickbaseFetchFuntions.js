@@ -33,6 +33,8 @@ function camelize(str) {
     return camelArr.join('')
 }
 
+// creates object that maps fieldNames to corresponding numbers on quickbase database
+// essentially linking th fields names to the corresponding numbers
 function createFieldsJSON(fieldNames, jsonFields) {
     const newArr = fieldNames.map(fieldName => {
         return {
@@ -56,6 +58,7 @@ function createTable(data, linksArr) {
     })
 }
 // new improved version that differentiates btwn array & string
+// creates the table object from the quickbase table
 function createTable2(data, linksArr) {
     //console.log('creatTable')
     return data.map(element => {
@@ -72,6 +75,7 @@ function createTable2(data, linksArr) {
     })
 }
 
+// creation of tables
 export async function fetchAndCreateTable(userToken, tableInitInfo) {
     try {
         const res = await fetch('https://api.quickbase.com/v1/records/query',
@@ -164,6 +168,8 @@ export async function testUpdate(userToken, tableInitInfo) {
         console.log(err)
     }
 }
+
+// used by the SRS Quiz interface to update the review interval when user rates example
 export async function updateStudentExample(recordID, lastReviewDate, reviewInterval, userToken) {
     try {
         const res = await fetch('https://api.quickbase.com/v1/records',
@@ -182,6 +188,7 @@ export async function updateStudentExample(recordID, lastReviewDate, reviewInter
     }
 }
 
+// used by the SRSBuilder.js, to add examples to the student examples table that will be used for the corresponding student in the SRS quiz interface.
 export async function createStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, userToken) {
     try {
         const res = await fetch('https://api.quickbase.com/v1/records',

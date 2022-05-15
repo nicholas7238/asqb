@@ -18,6 +18,7 @@ export default function QuizInterface() {
     const [showSpanish, setShowSpanish] = useState(false)
     const todaysDate = new Date()
 
+    // get all the student examples that belong to student with studentID & that have last review date earlier than today's date - review interval squared
     function retrieveExamplesByStudent(studentID, studentExamples, examples) {
         const filteredByStudentID = studentExamples.filter(stuEx => stuEx.relatedStudent === studentID)
         console.log('filteredByStudentID', filteredByStudentID)
@@ -28,32 +29,29 @@ export default function QuizInterface() {
             return todaysDate >= newDay
         })
         console.log('filteredByDateLogic', filteredByDateLogic)
-        //return filteredByStudentID // need to comment
         return filteredByDateLogic
     }
 
+    // grabs the 1st 20 examples of shuffled array
     function randomize20(studentExamples) {
         return shuffleArray(studentExamples).filter((stuEx, index)=>index<20)
         //return studentExamples
     }
 
+    // returns a shuffled version of array passed in
     function shuffleArray(arr) {        
-        const shuffledArr = [...arr]
-    
+        const shuffledArr = [...arr]   
         for(let i = shuffledArr.length; i > 0; i--) {
             const newIndex = Math.floor(Math.random() * (i - 1))
             const oldValue = shuffledArr[newIndex]
             shuffledArr[newIndex] = shuffledArr[i - 1]
             shuffledArr[i - 1] = oldValue
         }
-    
         return shuffledArr
-      }
+    }
 
-
-
-
-    async function init() { // gets user token & creates the student examples table
+    // gets user token & retrieves table data
+    async function init() {
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
         let stuid = queryParams.get('stuid')
@@ -63,15 +61,12 @@ export default function QuizInterface() {
             stuid = parseInt(stuid)
         }
 
-        console.log('stuid:  ', stuid)
-        
+        console.log('stuid:  ', stuid)      
         tables.current.studentExamples = await fetchAndCreateTable(ut, qb.studentExamples)
         console.log('student examples')
         tables.current.examples = await fetchAndCreateTable(ut, qb.examples)
         console.log('example')
-
         console.log('tables: ', tables.current)
-
         filteredStudentExamples.current = randomize20(retrieveExamplesByStudent(stuid, tables.current.studentExamples, tables.current.examples))
         console.log('length of filStuEx: ', filteredStudentExamples.current.length)
 
@@ -137,6 +132,7 @@ export default function QuizInterface() {
             setShowSpanish(reviewIntervalIncrements[newIndex] !== 0)
         }
     }
+    // called when user clicks left or right
     function changeCurrentIndex3(index, isIncrement) {
         let newIndex = index
         if(totalCompletedExamples == filteredStudentExamples.current.length) {
@@ -153,11 +149,8 @@ export default function QuizInterface() {
         }
     }
 
-    function goBackToMenu(e) { // actually should be named go back to main menu
-        // console.log('close tab')
-        // window.opener = null
-        // window.open("", "_self")
-        // window.close()
+    // redirects user to menu page
+    function goBackToMenu(e) {
         e.preventDefault()
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
@@ -166,9 +159,8 @@ export default function QuizInterface() {
         window.location.href=link
     }
 
-    // arrow UP & DOWN
-    async function changeReviewIntervalIncrement(increment) {
-        
+    //  called when user clicks arrow UP & DOWN
+    async function changeReviewIntervalIncrement(increment) {     
         console.log('old Inc: ', filteredStudentExamples.current[currentIndex].reviewIntervalIncrement)
         const newIncrement = increment
         // let newIncrement = increment + filteredStudentExamples.current[currentIndex].reviewIntervalIncrement
@@ -199,7 +191,7 @@ export default function QuizInterface() {
         // console.log('update params: ', n, recordId, lastReviewedDate, reviewInterval)
         // console.log('current: ', filteredStudentExamples.current[currentIndex])
         try {
-            //uncomment this
+            // This where you make call to quickbase api to update table in order to change last review data & review interval
             const updateInfo = await updateStudentExample(recordId, lastReviewedDate, reviewInterval, ut)
             console.log('updateInfo: ', updateInfo)
 
@@ -218,11 +210,12 @@ export default function QuizInterface() {
         }
     }
 
-
+    // called when user clicks space, shift, or clicks on Show Spanish button
     function toggleShowSpanish() {
         setShowSpanish(prevState => !prevState)
     }
 
+    // key input
     function handleKeyUp(e) {
         e.preventDefault()
         switch(e.keyCode) {
@@ -231,19 +224,15 @@ export default function QuizInterface() {
                 break
             case 38: // up
                 changeReviewIntervalIncrement(-1)
-                //setShowSpanish(true)
                 break
             case 39: // right
                 changeCurrentIndex3(currentIndex+1, true)
                 break
             case 40: // down
                 changeReviewIntervalIncrement(1)
-                //setShowSpanish(true)
                 break
             case 32: // space
                 toggleShowSpanish()
-                break
-            case 13: // enter does not work
                 break
             case 16: // shift
                 toggleShowSpanish()
@@ -266,6 +255,7 @@ export default function QuizInterface() {
             {   
                 currentIndex === -1 ? (<div>Loading...</div>) : currentIndex < -1 ? (<div>There are no new practice sentences today</div>) : 
             <>
+            {/* Progress Bar */}
             <div className='progressBarContainer'>
                 {/* <div className='progressBar'>
                     <div style={{width: (100 * (currentIndex+1) / filteredStudentExamples.current.length) + '%'}} className='progress'>.</div>
@@ -284,14 +274,15 @@ export default function QuizInterface() {
                 {/* totalCompletedExamples == filteredStudentExamples.current.length ? (<button style={{ fontSize: 'large', padding: '10px' }} onClick={(e) => goBackToMenu(e)}>Return to Main Menu</button>) : (<div></div>) */}
             </div>
             
+            {/* English Example */}
             <div className='englishTranslation'>{filteredStudentExamples.current[currentIndex].englishTranslation}</div>
-            
-
+            {/* Spanish Example */}
             <div className='spanishExample' onClick={()=>toggleShowSpanish()}>
             { !showSpanish ? 'Show Spanish' : 
             filteredStudentExamples.current[currentIndex].spanishExample}
             </div>
-            
+
+            {/* Bottom buttons: Prev, Next, Review More, Review Less */}
             <div className='buttonsContainer'>
                 <div><button className='buttonReviewMore' onClick={()=>changeReviewIntervalIncrement(-1)}>Review More ^</button></div>
                 <div>
