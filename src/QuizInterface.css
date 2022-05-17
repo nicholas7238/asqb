@@ -19,6 +19,7 @@ html, body {
     
 }
 
+/* Container of entire page */
 .quizInterface {
     text-align: center;
     padding: 1vh 5vw;
@@ -30,34 +31,13 @@ html, body {
     background-color: darkcyan;
 }
 
-
-
-
-.showSpanishButton {
-    padding: 20px;
-    margin: 20px;
-}
-
+/* Conatiner of Progress Bar & Description */
 .progressBarContainer {
     height: 10vh;
     /* background-color: cyan; */
 }
 
-.progressBar {
-    background-color: black;
-    width: 100%;
-    margin: auto;
-    border-style: solid;
-    border-radius: 15px;
-    
-}
-
-.progress {
-    background-color: green;
-    width: 50%;
-    border-radius: 10px;
-}
-
+/* Container of the 20 boxes */
 .progressBar2 {
     /* background-color: black; */
     width: 100%;
@@ -66,11 +46,8 @@ html, body {
     border-radius: 15px; */
     
 }
-.progressBarDescription {
-    font-size: x-large;
-    color: bisque;
-}
 
+/* A single box in the progress bar */
 .progressBox {
     background-color: grey;
     width: 50%;
@@ -85,6 +62,13 @@ html, body {
     height: 40px;
 }
 
+/* div where it says how many examples have been completed */
+.progressBarDescription {
+    font-size: x-large;
+    color: bisque;
+}
+
+/* The boxes containg the English sentence & the Spanish Sentence */
 .spanishExample, .englishTranslation {
     padding: 0%;
     margin: 4vh 0vw;
@@ -101,6 +85,7 @@ html, body {
     background-color: lightblue;
 }
 
+/* Container of Bottom buttons */
 .buttonsContainer {
     height: 20vh;
     width: 100%;

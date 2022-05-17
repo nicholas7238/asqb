@@ -37,14 +37,20 @@ h1 {
   display: flex;
 }
 */
+
+/* Top Left Search Bar */
 .search {
   width: 46%;
   padding: 10px 0px;
 }
+
+/* Top Left 'Add to Search Query' Button */
 .add-to-search-query {
   width: 50%;
   padding: 10px 0px;
 }
+
+/* Top Left List of suggested vocab */
 .suggestions {
   background-color: var(--suggestions);
   color: black;
@@ -57,15 +63,21 @@ h1 {
 .suggestions li:hover {
   background-color: yellow;
 }
+
+/* Top Right Lesson select dropdown */
 .lesson-select {
   display: inline-block;
   padding: 10px 0px;
 }
+
+/* Top Right 'Retrieve Sentences' button */
 .retrieve-sentences {
   width: 50%;
   padding: 10px 0px;
   font-weight: bold;
 }
+
+/* Top Right - Vocab added on the right side, to be searched */
 .custom-vocab {
   background-color: var(--customVocab);
 
@@ -81,7 +93,7 @@ h1 {
   background-color: lightsalmon;
 }
 
-/*examples*/
+/* Bottom - Examples*/
 
 .div-examples-header {
   display: flex;
@@ -108,6 +120,7 @@ h1 {
   background-color: var(--tableRow);
 }
 
+/* underneath Vocab/Idioms */
 .vocab-included-button {
   font-size: xx-small;
   padding: 1px 1px;
@@ -115,45 +128,3 @@ h1 {
   color: black;
 
 }
-
-
-/**
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-*/
