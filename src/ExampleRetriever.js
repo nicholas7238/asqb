@@ -3,6 +3,7 @@ import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable } from './QuickbaseFetchFuntions';
 import './App.css';
 
+// This script displays the Database Tool (Example Retriever), where coaches can lookup example sentences on the database by vocab word
 export default function ExampleRetriever() {
   // stores data of tables
   const tables = useRef({ vocab: [], lessons: [] })
@@ -21,6 +22,11 @@ export default function ExampleRetriever() {
   // it is split into 2 separate variables in order to avoid redundancy
   const [displayExamples, setDisplayExamples] = useState([])
 
+
+
+  
+  // called when user clicks 'Retrieve Sentences' button on top right of page
+  // makes the page display the filtered example sentences on the bottom of page
   function handleRetrieveSentencesOnClick(e) {
     e.preventDefault() // prevents page from refreshing
     const selectedLesson = e.target.firstChild.value // gets selected value in dropdown list of lessons
@@ -32,6 +38,7 @@ export default function ExampleRetriever() {
     filterExamplesHelper()
   }
 
+  // helper function called by handleRetrieveSentencesOnClick()
   // returns an array of all lessons with same title and lower/equal lesson number
   // for example: AS Lesson 3 will return ['AS Lesson 1', 'AS Lesson 2', 'AS Lesson 3']
   function retrieveCombinedLessonVocab(selectedLessonName, lessonsTable) {
@@ -50,7 +57,8 @@ export default function ExampleRetriever() {
     return combinedLessonVocab
   }
 
-  // returns filtered array of examples with a strict filter
+  // helper function called by handleRetrieveSentencesOnClick()
+  // returns filtered array of examples by vocab with a strict filter
   // meaning each example MUST include all vocab in vocabArr
   function filterExamplesStrict(vocabArr, examplesTable) {
     const filteredExamples = examplesTable.filter(example => {
@@ -67,8 +75,9 @@ export default function ExampleRetriever() {
     return filteredExamples
   }
 
-  // returns filtered array of examples with a lenient filter
-  // meaning as long as the example contains at least one of the vocab in vocabArr
+  // helper function called by handleRetrieveSentencesOnClick()
+  // returns filtered array of examples by vocab with a lenient filter
+  // meaning as long as the example contains at least one of the vocab in vocabArr, then the example will be in the returned array
   function filterExamplesLenient(vocabArr, examplesTable) {
       const filteredExamples = vocabArr.length === 0 ? examplesTable : examplesTable.filter(example => {
           for(const parameterVocab of vocabArr) {
@@ -83,6 +92,7 @@ export default function ExampleRetriever() {
       return filteredExamples
   }
 
+  // helper function called by handleRetrieveSentencesOnClick() & the 2nd useEffect() below
   // checks if noSpanglish & shuffleSentences and then sets the displayExamples
   function filterExamplesHelper() {
     const filter2 = filteredExamples.current
@@ -91,7 +101,8 @@ export default function ExampleRetriever() {
     setDisplayExamples(filter4)
   }
 
-  // returns a shuffled array  
+  // helper function called by filterExamplesHelper()
+  // returns a shuffled array of examples array in parameter 
   function shuffleArray(arr) {       
     const shuffledArr = [...arr]
     for(let i = shuffledArr.length; i > 0; i--) {
@@ -103,6 +114,7 @@ export default function ExampleRetriever() {
     return shuffledArr
   }
 
+  // called when user clicks 'Copy as List' button
   // copies sentences in a list format with all english sentences first & then all spanish sentences
   function copySentences() {
     const englishSentences = displayExamples.map(example => {
@@ -116,6 +128,7 @@ export default function ExampleRetriever() {
     navigator.clipboard.writeText(copiedText)
   }
 
+  // called when user clicks 'Copy as Table' button
   // copies sentences in a table format to be pasted into a google doc or excel sheet
   function copyTable() {
     const headers = 'Spanish\tEnglish\n'
@@ -127,7 +140,9 @@ export default function ExampleRetriever() {
     navigator.clipboard.writeText(copiedText)
   }
 
+  // called by 1st useEffect(), when first loading the page
   // gets user token & retrieves all table data & stores it into tables variable
+  // to set up all needed variables
   async function init() {
     // getting the user token
     const queryParams = new URLSearchParams(window.location.search)

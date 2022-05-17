@@ -3,11 +3,19 @@ import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable } from './QuickbaseFetchFuntions';
 import './App.css'
 
+// this script displays the Menu page, where user can access
+// - Database tool (Example Retriever)
+// - old Database tool
+// - SRS Builder
+// - SRS Quiz Platform (Quiz Interface)
+// - SRS Quiz Platform Version that does not update database
 export default function Menu() {
     //const tables = useRef({ students: [] })
     const [studentsTable, setStudentsTable] = useState([])
     const [currentStudent, setCurrentStudent] = useState(3)
 
+    // called whenever user clicks a button
+    // redirects user to appropriate page
     function handleOnClick(pageName) {
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
@@ -23,7 +31,8 @@ export default function Menu() {
         )
     }
 
-    // gets user token & tables data
+    // called by useEffect() when loading
+    // gets user token & initializes tables data
     async function init() {
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
@@ -31,6 +40,7 @@ export default function Menu() {
         setStudentsTable(stuTable)
         console.log('students')
       }
+    // called once in the beginning
     useEffect(() => {       
         init() 
         //console.log(tables)       

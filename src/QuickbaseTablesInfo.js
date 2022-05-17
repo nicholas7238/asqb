@@ -1,5 +1,6 @@
 export const qb = { // quickbaseTablesInfo
-    // This is where all the table names used to make queries are stored
+    // This is where all the quickbase table names used to make queries are hardcoded & stored
+    // these are used whenenever a page needs to retrieve, update, or create data on quickbase database
     studentExamples: {
         name: 'student-examples',
         id: 'br3juud42',

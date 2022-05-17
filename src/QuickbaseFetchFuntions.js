@@ -1,6 +1,10 @@
 import { qb } from './QuickbaseTablesInfo';
+// These are all the functions needed to access the data on the quickbase database
+// These get called whenever a page needs to retrieve, update, or create data on quickbase
+// Every request to quickbase requires a header & a body, so there are functions dedicated to just creating the header or the body
 
 // creates headers needed for querying data from quickbase
+// this is pretty much the same for each quickbase request
 function createHeaders(userToken) {
     const headers = {
         'QB-Realm-Hostname': 'masterofmemory.quickbase.com',
@@ -12,6 +16,7 @@ function createHeaders(userToken) {
 }
 
 // creates body needed for querying data from quickbase
+// (if there's ever a case where the tables has more columns than 25, the "select" array will need to be increased)
 function createBody(tableID) {
     return {
         "from": tableID,
@@ -33,8 +38,8 @@ function camelize(str) {
     return camelArr.join('')
 }
 
-// creates object that maps fieldNames to corresponding numbers on quickbase database
-// essentially linking th fields names to the corresponding numbers
+// creates object that maps fieldNames to their corresponding numbers on quickbase database
+// essentially linking the fields names to the number they are associated with on quickbase
 function createFieldsJSON(fieldNames, jsonFields) {
     const newArr = fieldNames.map(fieldName => {
         return {
@@ -75,7 +80,7 @@ function createTable2(data, linksArr) {
     })
 }
 
-// creation of tables
+// creates & returns tables object, which is what all the pages, like Example Retriever, use to get data from
 export async function fetchAndCreateTable(userToken, tableInitInfo) {
     try {
         const res = await fetch('https://api.quickbase.com/v1/records/query',
@@ -104,8 +109,7 @@ export async function fetchAndCreateTable(userToken, tableInitInfo) {
     }
 }
 
-function createBodyForUpdate(tableID) {}
-
+// test func
 function createBodyForUpdateTest(tableID) {
     return {
         "to": tableID,
@@ -119,39 +123,7 @@ function createBodyForUpdateTest(tableID) {
     }
 }
 
-// 3: RecordID
-// 6: Last Review Date
-// 7: Review Interval
-function createBodyForUpdateStudentExample(recordID, lastReviewDate, reviewInterval, tableID) {
-    return {
-        "to": tableID,
-        "data": [
-            {
-                "3": { "value": recordID },
-                "6": { "value": lastReviewDate },
-                "7": { "value": reviewInterval }
-            }
-        ],
-        "fieldsToReturn": [3, 6, 7, 8, 9]
-    }
-}
-
-function createBodyForCreateStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, tableID) {
-    return {
-        "to": tableID,
-        "data": [
-            {
-                //"3": { "value": recordID },
-                "6": { "value": lastReviewDate },
-                "7": { "value": reviewInterval },
-                "8": { "value": studentID },
-                "9": { "value": exampleID }
-            }
-        ],
-        "fieldsToReturn": [3, 6, 7, 8, 9]
-    }
-}
-
+// test func
 export async function testUpdate(userToken, tableInitInfo) {
     try {
         const res = await fetch('https://api.quickbase.com/v1/records',
@@ -169,6 +141,48 @@ export async function testUpdate(userToken, tableInitInfo) {
     }
 }
 
+// 3: RecordID
+// 6: Last Review Date
+// 7: Review Interval
+// This is a COPY/PASTE/EDIT of createBody()
+// but is used for updating data on Student Examples table, instead of just retrieving data
+// called by updateStudentExample()
+function createBodyForUpdateStudentExample(recordID, lastReviewDate, reviewInterval, tableID) {
+    return {
+        "to": tableID,
+        "data": [
+            {
+                "3": { "value": recordID },
+                "6": { "value": lastReviewDate },
+                "7": { "value": reviewInterval }
+            }
+        ],
+        "fieldsToReturn": [3, 6, 7, 8, 9]
+    }
+}
+
+// This is a COPY/PASTE/EDIT of createBody()
+// but is used for creating data on Student Examples table, instead of just retrieving data
+// called by createStudentExample()
+function createBodyForCreateStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, tableID) {
+    return {
+        "to": tableID,
+        "data": [
+            {
+                //"3": { "value": recordID },
+                "6": { "value": lastReviewDate },
+                "7": { "value": reviewInterval },
+                "8": { "value": studentID },
+                "9": { "value": exampleID }
+            }
+        ],
+        "fieldsToReturn": [3, 6, 7, 8, 9]
+    }
+}
+
+
+
+// This is a COPY/PASTE/EDIT of fetchAndCreateTable()
 // used by the SRS Quiz interface to update the review interval when user rates example
 export async function updateStudentExample(recordID, lastReviewDate, reviewInterval, userToken) {
     try {
@@ -188,6 +202,7 @@ export async function updateStudentExample(recordID, lastReviewDate, reviewInter
     }
 }
 
+// This is a COPY/PASTE/EDIT of fetchAndCreateTable()
 // used by the SRSBuilder.js, to add examples to the student examples table that will be used for the corresponding student in the SRS quiz interface.
 export async function createStudentExample(exampleID, studentID, lastReviewDate, reviewInterval, userToken) {
     try {

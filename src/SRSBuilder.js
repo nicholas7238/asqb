@@ -3,42 +3,120 @@ import { qb } from './QuickbaseTablesInfo';
 import { fetchAndCreateTable, createStudentExample } from './QuickbaseFetchFuntions';
 import './SRSBuilder.css'
 
+// This is a COPY/PASTE/EDIT of ExampleRetriever.js
+// The new functions are:
+// - setAllCheckedboxes()
+// - setOneCheckedbox()
+// - handleAddCheck()
+//
+// init() & the return <div> are also slighly different from ExampleRetriever.js's
+//
+// This script displays the SRS Builder, which is what user uses to add more examples to be used in SRS quiz tool
 export default function SRSBuilder() {
   const tables = useRef({ vocab: [], lessons: [], students: [], studentExamples: [] })
   // vocab
-  //const [search, setSearch] = useState('')
-  //const filteredVocab = tables.current.vocab.filter(vocab => vocab.vocabName.toLowerCase().includes(search.toLowerCase()))
   const [filteredVocab, setFilteredVocab] = useState([])
-  //const [lessonTitleSelect, setLessonTitleSelect] = useState({options: [''], selected: 0})
-  //const [lessonNumSelect, setLessonNumSelect] = useState({})
   const [customSearchVocab, setCustomSearchVocab] = useState([])
   // examples
   const [noSpanglish, setNoSpanglish] = useState(false)
   const [shuffledSentences, setShuffledSentences] = useState(false)
   const filteredExamples = useRef([])
   const [displayExamples, setDisplayExamples] = useState([])
-  //const [filteredExamples, setFilteredExamples] = useState([])
+
   const [currentStudent, setCurrentStudent] = useState(3)
   const [selectAll, setSelectAll] = useState(false)
 
-  //////// currently not in use
-  function createLessonsSelectOptions(lessons) {
-    let arr = []
-    //LESSONS.forEach(lesson => arr.push(lesson.name))
-    lessons.forEach(lesson => {
-      for(let i = 1; i <= lesson.length; i++) {
-        arr.push(lesson.name + ' ' + i)
+
+
+
+
+
+  function setAllCheckboxes(isChecked) {
+    const newDisplayExamples = displayExamples.map(ex=>{
+      ex.selected = isChecked
+      return ex
+    })
+    setSelectAll(!selectAll)
+    setDisplayExamples(newDisplayExamples)
+  }
+
+  function setOneCheckbox(isChecked, rid) {
+    const newDisplayExamples = displayExamples.map(ex=>{
+      ex.selected = ex.recordId === rid ? !ex.selected : ex.selected
+      return ex
+    })
+    if(selectAll) {
+      setSelectAll(false)
+    }
+    setDisplayExamples(newDisplayExamples)
+  }
+
+  // called when clicking 'Added checked sentences to student's SRS list' button
+  // creates new entry on student examples for every checked example for corresponding student
+  // also checks if example already exists, so it does not create duplicate
+  async function handleAddChecked() {
+    // console.log('display exs: ', displayExamples.map(ex=>ex.selected))
+    // const hace10m = new Date()
+    // hace10m.setMinutes(hace10m.getMinutes() - 10)
+    // if(hace10m < 0) {
+    //   //style is red
+    // }
+    // const today = new Date()
+    // console.log('today', today)
+    // today.setMinutes(today.getMinutes() - 10)
+    // console.log('today - 10', today)
+    // const day2 = tables.current.studentExamples[0].dateCreated
+    // const day3 = new Date(day2)
+    // console.log('day2: ', day2)
+    // console.log('day3: ', day3)
+    // const d4 = day3 + 100
+    // console.log('d4: ', d4)
+
+    // console.log('if: ', day3 < today)
+    // //newDay.setDate(newDay.getDate() + parseInt(Math.pow(2, stuEx.reviewInterval)))
+    // //return todaysDate >= newDay
+
+
+
+    //
+    const queryParams = new URLSearchParams(window.location.search)
+    const ut = queryParams.get('ut')
+
+    const hace2d = new Date()
+    hace2d.setDate(hace2d.getDate() - 2)
+    console.log('hace2d: ', hace2d)
+    const hace2dFormatted = hace2d.toISOString().substring(0, 10)
+    console.log('hace2dFormatted: ', hace2dFormatted)
+    await displayExamples.forEach(async (ex)=>{
+      if(ex.selected) {
+        
+        const exID = ex.recordId
+        const stuID = currentStudent
+        const lastReviewedDate = hace2dFormatted // yesterday's date
+        const reviewInterval = 0
+        console.log(exID, stuID, lastReviewedDate, reviewInterval)
+        if(tables.current.studentExamples.find(stuEx=>(stuEx.relatedExample===exID && stuEx.relatedStudent===stuID))) {
+          //
+          console.log('found')
+        } else {
+          console.log('not found')
+        
+          
+          //  
+          try {
+            const updateInfo = await createStudentExample(exID, stuID, lastReviewedDate, reviewInterval, ut)
+            console.log('updateInfo: ', updateInfo)
+            setAllCheckboxes(false)
+            setSelectAll(false)
+          } catch(err) {
+            console.log(err)
+          }
+        }
       }
     })
-    console.log('createLessonsSelectOpt: ', arr)
-    return arr
   }
-  function createLessonTitle(option) {
-    const lesson = tables.current.lessons.find(element => element.lesson === option)
-    const title = lesson ? lesson.vocabIncluded.join('\n') : ''
-    return title
-  }
-////////////
+
+
 
   function retrieveCombinedLessonVocab(selectedLessonName, lessonsTable) {
     const selectedSplitArr = selectedLessonName.split(' ')
@@ -56,32 +134,12 @@ export default function SRSBuilder() {
     return combinedLessonVocab
   }
 
-  function handleSelect1OnChange(e) {
-    e.preventDefault()
-    // console.log('selected value: ', e.target.value)
-    // //setLessonTitleSelect({options: [...setLessonTitleSelect.options], selected: e.target.value})
-    // setLessonTitleSelect({...lessonTitleSelect, selected: e.target.value})
-    // console.log(lessonTitleSelect)
-  }
-
   function handleRetrieveSentencesOnClick(e) {
     e.preventDefault()
-    //console.log('handle: ', e.target.firstChild.value)
-    
-    //console.log('retrive sent')
-    //lessonTitleSelect.selected === '' ? tables.current.examples :
     const selectedLesson = e.target.firstChild.value
     const filter1 = selectedLesson === '' ? tables.current.examples : filterExamplesStrict(retrieveCombinedLessonVocab(selectedLesson, tables.current.lessons), tables.current.examples)
-    //console.log('filter1: ', filter1)
     const filter2 = filterExamplesLenient(customSearchVocab, filter1)
-    //console.log('filter2: ', filter2)
     filteredExamples.current = filter2
-    //const strictExamples = filterExamplesStrict(retrieveCombinedLessonVocab('SI1M Lesson 8', table), exTable)
-    //const lenientExamples = filterExamplesLenient(['por', 'de'], exTable)
-    // const filter3 = noSpanglish ? filter2.filter(example => example.spanglish === 'esp') : filter2
-    // const filter4 = shuffledSentences ? shuffleArray(filter3) : filter3
-    // setDisplayExamples(filter4)
-    //setFilteredExamples(filter2)
     filterExamplesHelper()
   }
 
@@ -164,87 +222,7 @@ export default function SRSBuilder() {
     navigator.clipboard.writeText(copiedText)
   }
 
-  function setAllCheckboxes(isChecked) {
-    const newDisplayExamples = displayExamples.map(ex=>{
-      ex.selected = isChecked
-      return ex
-    })
-    setSelectAll(!selectAll)
-    setDisplayExamples(newDisplayExamples)
-  }
 
-  function setOneCheckbox(isChecked, rid) {
-    const newDisplayExamples = displayExamples.map(ex=>{
-      ex.selected = ex.recordId === rid ? !ex.selected : ex.selected
-      return ex
-    })
-    if(selectAll) {
-      setSelectAll(false)
-    }
-    setDisplayExamples(newDisplayExamples)
-  }
-
-  async function handleAddChecked() {
-    // console.log('display exs: ', displayExamples.map(ex=>ex.selected))
-    // const hace10m = new Date()
-    // hace10m.setMinutes(hace10m.getMinutes() - 10)
-    // if(hace10m < 0) {
-    //   //style is red
-    // }
-    // const today = new Date()
-    // console.log('today', today)
-    // today.setMinutes(today.getMinutes() - 10)
-    // console.log('today - 10', today)
-    // const day2 = tables.current.studentExamples[0].dateCreated
-    // const day3 = new Date(day2)
-    // console.log('day2: ', day2)
-    // console.log('day3: ', day3)
-    // const d4 = day3 + 100
-    // console.log('d4: ', d4)
-
-    // console.log('if: ', day3 < today)
-    // //newDay.setDate(newDay.getDate() + parseInt(Math.pow(2, stuEx.reviewInterval)))
-    // //return todaysDate >= newDay
-
-
-
-    //
-    const queryParams = new URLSearchParams(window.location.search)
-    const ut = queryParams.get('ut')
-
-    const hace2d = new Date()
-    hace2d.setDate(hace2d.getDate() - 2)
-    console.log('hace2d: ', hace2d)
-    const hace2dFormatted = hace2d.toISOString().substring(0, 10)
-    console.log('hace2dFormatted: ', hace2dFormatted)
-    await displayExamples.forEach(async (ex)=>{
-      if(ex.selected) {
-        
-        const exID = ex.recordId
-        const stuID = currentStudent
-        const lastReviewedDate = hace2dFormatted // yesterday's date
-        const reviewInterval = 0
-        console.log(exID, stuID, lastReviewedDate, reviewInterval)
-        if(tables.current.studentExamples.find(stuEx=>(stuEx.relatedExample===exID && stuEx.relatedStudent===stuID))) {
-          //
-          console.log('found')
-        } else {
-          console.log('not found')
-        
-          
-          //  
-          try {
-            const updateInfo = await createStudentExample(exID, stuID, lastReviewedDate, reviewInterval, ut)
-            console.log('updateInfo: ', updateInfo)
-            setAllCheckboxes(false)
-            setSelectAll(false)
-          } catch(err) {
-            console.log(err)
-          }
-        }
-      }
-    })
-  }
 
   async function init() { // gets user token & creates the student examples table
     const queryParams = new URLSearchParams(window.location.search)
@@ -297,6 +275,7 @@ export default function SRSBuilder() {
   return <div>
       <div className='div-header'><h1 style={{'backgroundColor': 'darkCyan'}}>SRS Builder</h1></div>
       <div className='div-vocab'>
+        {/* Top Left - Vocab search bar section */}
         <div className='div-vocab-left'>
           <div className='div-vocab-left-header'>    
             <form onSubmit={(e) => {
@@ -315,10 +294,11 @@ export default function SRSBuilder() {
             })}
           </ul>
         </div>
+        {/* Top Right - Lesson filter & Retrieve Sentences Button section */}
         <div className='div-vocab-right'>
           <div className='div-vocab-right-header'>
             <form onSubmit={(e)=>handleRetrieveSentencesOnClick(e)}>
-              <select className='lesson-select' onChange={(e) => handleSelect1OnChange(e)}>
+              <select className='lesson-select'>
                 <option value=''>No lesson filter</option>
                 {/*lessonTitleSelect.options.map((option, id) => (<option key={id} title={createLessonTitle(option)}>{option}</option>))*/
                 tables.current.lessons.map((lesson, id)=>(<option key={id} title={lesson.vocabIncluded.join('\n')}>{lesson.lesson}</option>))
@@ -332,6 +312,7 @@ export default function SRSBuilder() {
           </div>
         </div>
       </div>
+      {/* Middle - Example List */}
       <div className='div-examples-header'>
         <div>
           <button onClick={copySentences}>Copy as List</button>
@@ -368,6 +349,7 @@ export default function SRSBuilder() {
         </table>
       </div>
       <div>_</div>
+      {/* Bottom - Student's examples section */}
       <div className='div-examples-header'>
           <div>
           <button style={{'fontWeight': 'bold'}} onClick={()=>handleAddChecked()}>Add checked sentences to student's SRS list</button>

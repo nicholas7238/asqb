@@ -8,6 +8,11 @@ import './QuizInterface.css';
 // last reviewed date 6
 // review interval 7
 
+
+// This is a COPY/PASTE/EDIT of QuizInterface.js
+// the key differences are that this interface does not update the quickbase database when rating
+// and ignores the SRS logic & instead just randomly chooses 20 random questions regardless of the last review date.
+// changeCurrentIndex3() & retrieveExamplesByStudent() are the only different functions
 export default function QuizInterfaceNoUpdate() {
     const tables = useRef({ studentExamples: [], examples: [] })
 
@@ -18,6 +23,7 @@ export default function QuizInterfaceNoUpdate() {
     const [showSpanish, setShowSpanish] = useState(false)
     const todaysDate = new Date()
 
+    // this version retrieves a random set of 20, ignoring the last review date & SRS Logic
     function retrieveExamplesByStudent(studentID, studentExamples, examples) {
         const filteredByStudentID = studentExamples.filter(stuEx => stuEx.relatedStudent === studentID)
         console.log('filteredByStudentID', filteredByStudentID)
@@ -28,7 +34,7 @@ export default function QuizInterfaceNoUpdate() {
             return todaysDate >= newDay
         })
         console.log('filteredByDateLogic', filteredByDateLogic)
-        return filteredByStudentID // need to comment
+        return filteredByStudentID // This is what causes the interface to ignore logic
         return filteredByDateLogic
     }
 
@@ -96,48 +102,7 @@ export default function QuizInterfaceNoUpdate() {
       }
 
 
-
-    // arrow LEFT & RIGHT
-    function changeCurrentIndexOLD(index, isIncrement) {
-        if(index <= totalCompletedExamples || isIncrement) {
-            setCurrentIndex(prevState => {
-                let newIndex = index
-                if(totalCompletedExamples < filteredStudentExamples.current.length) {
-                    if(newIndex < 0) {
-                        newIndex = totalCompletedExamples // filteredStudentExamples.current.length - 1
-                    } else if(newIndex > totalCompletedExamples && isIncrement) { //} filteredStudentExamples.current.length - 1) {
-                        newIndex = 0
-                    }
-                } else {
-                    if(newIndex < 0) {
-                        newIndex = totalCompletedExamples - 1
-                    } else if(newIndex > totalCompletedExamples - 1) { //} filteredStudentExamples.current.length - 1) {
-                        newIndex = 0
-                    }
-                }
-                return newIndex
-            })
-            if(reviewIntervalIncrements[index] === 0) {
-                setShowSpanish(false)
-            } else {
-                setShowSpanish(true)
-            }
-        }
-    }
-    function changeCurrentIndex2(index, isIncrement) {
-        if(index <= totalCompletedExamples || isIncrement) {
-            let newIndex = index
-            const highestIndex = totalCompletedExamples < filteredStudentExamples.current.length ? totalCompletedExamples : totalCompletedExamples - 1
-            if(newIndex < 0) {
-                newIndex = highestIndex // filteredStudentExamples.current.length - 1
-            } else if(newIndex > highestIndex && isIncrement) { //} filteredStudentExamples.current.length - 1) {
-                newIndex = 0
-            }
-            setCurrentIndex(newIndex)
-            setShowSpanish(reviewIntervalIncrements[newIndex] !== 0)
-        }
-    }
-
+    // LEFT RIGHT arrow key
     function changeCurrentIndex3(index, isIncrement) {
         let newIndex = index
         if(totalCompletedExamples == filteredStudentExamples.current.length) {
@@ -155,10 +120,6 @@ export default function QuizInterfaceNoUpdate() {
     }
 
     function goBackToMenu(e) { // actually should be named go back to main menu
-        // console.log('close tab')
-        // window.opener = null
-        // window.open("", "_self")
-        // window.close()
         e.preventDefault()
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
@@ -168,21 +129,15 @@ export default function QuizInterfaceNoUpdate() {
     }
 
     // arrow UP & DOWN
+    // does not update quickbase database
     async function changeReviewIntervalIncrement(increment) {
         
         console.log('old Inc: ', filteredStudentExamples.current[currentIndex].reviewIntervalIncrement)
         const newIncrement = increment
-        // let newIncrement = increment + filteredStudentExamples.current[currentIndex].reviewIntervalIncrement
-        // if(newIncrement > 1) {
-        //     newIncrement = 1
-        // } else if(newIncrement < -1) {
-        //     newIncrement = -1
-        // }
+
         console.log('new Inc: ', newIncrement)
         
-        filteredStudentExamples.current[currentIndex].reviewIntervalIncrement = newIncrement // is this even used?
-
-        //changeButtonUpDownStyle(newIncrement)
+        filteredStudentExamples.current[currentIndex].reviewIntervalIncrement = newIncrement 
 
         // make the update here & if its works then continue with the set
         const queryParams = new URLSearchParams(window.location.search)
@@ -200,7 +155,7 @@ export default function QuizInterfaceNoUpdate() {
         // console.log('update params: ', n, recordId, lastReviewedDate, reviewInterval)
         // console.log('current: ', filteredStudentExamples.current[currentIndex])
         try {
-            //uncomment this
+            // This is the code that would update quickbase database
             //const updateInfo = await updateStudentExample(recordId, lastReviewedDate, reviewInterval, ut)
             //console.log('updateInfo: ', updateInfo)
 
@@ -279,7 +234,7 @@ export default function QuizInterfaceNoUpdate() {
                         let bgColor = reviewIntervalIncrements[index] === -1 ? 'crimson' : (reviewIntervalIncrements[index] === 1 ? 'lime' : (index === totalCompletedExamples ? 'slateGrey' : 'grey'))
                         //console.log('revIntIncs: ', reviewIntervalIncrements)
                         
-                        return(<div key={index} style={{width: (100 / filteredStudentExamples.current.length) - 1 + '%', borderColor: color, color: color, backgroundColor: bgColor}} className='progressBox' onClick={()=>changeCurrentIndex2(index, false)}>{index + 1}</div>)
+                        return(<div key={index} style={{width: (100 / filteredStudentExamples.current.length) - 1 + '%', borderColor: color, color: color, backgroundColor: bgColor}} className='progressBox' onClick={()=>changeCurrentIndex3(index, false)}>{index + 1}</div>)
                     })}
                     
                 </div>

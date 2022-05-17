@@ -8,6 +8,8 @@ import './QuizInterface.css';
 // last reviewed date 6
 // review interval 7
 
+// This script displays the SRS Quiz Tool (Quiz Interface)
+// where user go throughs 20 example sentences & then rates their difficulty
 export default function QuizInterface() {
     const tables = useRef({ studentExamples: [], examples: [] })
 
@@ -19,6 +21,7 @@ export default function QuizInterface() {
     const todaysDate = new Date()
 
     // get all the student examples that belong to student with studentID & that have last review date earlier than today's date - review interval squared
+    // called by init()
     function retrieveExamplesByStudent(studentID, studentExamples, examples) {
         const filteredByStudentID = studentExamples.filter(stuEx => stuEx.relatedStudent === studentID)
         console.log('filteredByStudentID', filteredByStudentID)
@@ -33,12 +36,14 @@ export default function QuizInterface() {
     }
 
     // grabs the 1st 20 examples of shuffled array
+    // called by init()
     function randomize20(studentExamples) {
         return shuffleArray(studentExamples).filter((stuEx, index)=>index<20)
         //return studentExamples
     }
 
-    // returns a shuffled version of array passed in
+    // returns a shuffled version of examples array passed in
+    // called by randomize20()
     function shuffleArray(arr) {        
         const shuffledArr = [...arr]   
         for(let i = shuffledArr.length; i > 0; i--) {
@@ -91,8 +96,8 @@ export default function QuizInterface() {
       }
 
 
-
-    // arrow LEFT & RIGHT
+/*
+    // OLD Version not in use anymore
     function changeCurrentIndexOLD(index, isIncrement) {
         if(index <= totalCompletedExamples || isIncrement) {
             setCurrentIndex(prevState => {
@@ -119,7 +124,9 @@ export default function QuizInterface() {
             }
         }
     }
-    function changeCurrentIndex2(index, isIncrement) { // OLD Version not in use anymore
+    // this previous function used to allow the user to loop to beginning when user moved past current limit before complete all questions
+    // but this functionality was removed
+    function changeCurrentIndex2(index, isIncrement) { 
         if(index <= totalCompletedExamples || isIncrement) {
             let newIndex = index
             const highestIndex = totalCompletedExamples < filteredStudentExamples.current.length ? totalCompletedExamples : totalCompletedExamples - 1
@@ -132,7 +139,9 @@ export default function QuizInterface() {
             setShowSpanish(reviewIntervalIncrements[newIndex] !== 0)
         }
     }
-    // called when user clicks left or right
+*/
+    // called when user clicks LEFT/RIGHT arrow key or clicks PREV/NEXT buttons or clicks on timeline
+    // switches the current example to previous or next
     function changeCurrentIndex3(index, isIncrement) {
         let newIndex = index
         if(totalCompletedExamples == filteredStudentExamples.current.length) {
@@ -150,6 +159,7 @@ export default function QuizInterface() {
     }
 
     // redirects user to menu page
+    // called when user clicks 'Return to Main Menu'
     function goBackToMenu(e) {
         e.preventDefault()
         const queryParams = new URLSearchParams(window.location.search)
@@ -159,32 +169,23 @@ export default function QuizInterface() {
         window.location.href=link
     }
 
-    //  called when user clicks arrow UP & DOWN
+    // called when user clicks arrow UP/DOWN or Review More/Review Less buttons
+    // changes rating increment on quickbase database
     async function changeReviewIntervalIncrement(increment) {     
         console.log('old Inc: ', filteredStudentExamples.current[currentIndex].reviewIntervalIncrement)
         const newIncrement = increment
-        // let newIncrement = increment + filteredStudentExamples.current[currentIndex].reviewIntervalIncrement
-        // if(newIncrement > 1) {
-        //     newIncrement = 1
-        // } else if(newIncrement < -1) {
-        //     newIncrement = -1
-        // }
         console.log('new Inc: ', newIncrement)
         
-        filteredStudentExamples.current[currentIndex].reviewIntervalIncrement = newIncrement // is this even used?
-
-        //changeButtonUpDownStyle(newIncrement)
+        filteredStudentExamples.current[currentIndex].reviewIntervalIncrement = newIncrement // ?
 
         // make the update here & if its works then continue with the set
         const queryParams = new URLSearchParams(window.location.search)
         const ut = queryParams.get('ut')
-        const n = filteredStudentExamples.current[currentIndex].reviewIntervalIncrement
         const recordId = filteredStudentExamples.current[currentIndex].recordId
         // Last Review Date
         const today = new Date()
         console.log('today: ', todaysDate.toISOString().substring(0, 10))
         const lastReviewedDate = todaysDate.toISOString().substring(0, 10)
-        //const lastReviewedDate = filteredStudentExamples.current[currentIndex].lastReviewedDate
         console.log('tyu: ', filteredStudentExamples.current[currentIndex].lastReviewedDate)
         //
         const reviewInterval = filteredStudentExamples.current[currentIndex].reviewInterval + newIncrement < 0 ? 0 : filteredStudentExamples.current[currentIndex].reviewInterval + newIncrement
@@ -211,6 +212,7 @@ export default function QuizInterface() {
     }
 
     // called when user clicks space, shift, or clicks on Show Spanish button
+    // shows or hides Spanish sentence
     function toggleShowSpanish() {
         setShowSpanish(prevState => !prevState)
     }
@@ -266,7 +268,7 @@ export default function QuizInterface() {
                         let bgColor = reviewIntervalIncrements[index] === -1 ? 'crimson' : (reviewIntervalIncrements[index] === 1 ? 'lime' : (index === totalCompletedExamples ? 'slateGrey' : 'grey'))
                         //console.log('revIntIncs: ', reviewIntervalIncrements)
                         
-                        return(<div key={index} style={{width: (100 / filteredStudentExamples.current.length) - 1 + '%', borderColor: color, color: color, backgroundColor: bgColor}} className='progressBox' onClick={()=>changeCurrentIndex2(index, false)}>{index + 1}</div>)
+                        return(<div key={index} style={{width: (100 / filteredStudentExamples.current.length) - 1 + '%', borderColor: color, color: color, backgroundColor: bgColor}} className='progressBox' onClick={()=>changeCurrentIndex3(index, false)}>{index + 1}</div>)
                     })}
                     
                 </div>
